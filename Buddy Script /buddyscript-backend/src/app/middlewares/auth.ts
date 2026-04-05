@@ -1,70 +1,43 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express'; // Response needed for catchAsync signature
 import httpStatus from 'http-status';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import AppError from '../errors/AppError';
-import { TUserRole } from '../modules/User/user.interface';
 import { User } from '../modules/User/user.model';
 import catchAsync from '../utils/catchAsync';
+import { verifyToken } from '../modules/Auth/auth.utils';
 
-const auth = (...requiredRoles: TUserRole[]) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+const auth = catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
 
-    // checking if the token is missing
-    if (!token) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
-    }
+  if (!token) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
 
-    // checking if the given token is valid
-    const decoded = jwt.verify(
-      token,
-      config.jwt_access_secret as string,
-    ) as JwtPayload;
+  const decoded = verifyToken(token, config.jwt_access_secret as string) as JwtPayload;
 
-    const { role, userId, iat } = decoded;
+  const user = await User.findById(decoded.userId);
 
-    // checking if the user is exist
-    const user = await User.isUserExistsByCustomId(userId);
+  if (!user || user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
 
-    if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-    }
-    // checking if the user is already deleted
+  if (user.status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'Your account has been blocked');
+  }
 
-    const isDeleted = user?.isDeleted;
+  if (
+    user.passwordChangedAt &&
+    User.isJWTIssuedBeforePasswordChanged(
+      user.passwordChangedAt,
+      decoded.iat as number,
+    )
+  ) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Session expired, please login again');
+  }
 
-    if (isDeleted) {
-      throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
-    }
-
-    // checking if the user is blocked
-    const userStatus = user?.status;
-
-    if (userStatus === 'blocked') {
-      throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
-    }
-
-    if (
-      user.passwordChangedAt &&
-      User.isJWTIssuedBeforePasswordChanged(
-        user.passwordChangedAt,
-        iat as number,
-      )
-    ) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
-    }
-
-    if (requiredRoles && !requiredRoles.includes(role)) {
-      throw new AppError(
-        httpStatus.UNAUTHORIZED,
-        'You are not authorized  hi!',
-      );
-    }
-
-    req.user = decoded as JwtPayload & { role: string };
-    next();
-  });
-};
+  req.user = decoded as JwtPayload & { role: string };
+  next();
+});
 
 export default auth;
