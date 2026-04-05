@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthRoutes } from '../modules/Auth/auth.route';
+import { CommentRoutes } from '../modules/Comment/comment.route';
 import { PostRoutes } from '../modules/Post/post.route';
 import { UserRoutes } from '../modules/User/user.route';
 
@@ -18,8 +19,15 @@ const moduleRoutes = [
     path: '/posts',
     route: PostRoutes,
   },
+  {
+    path: '/comments',
+    route: CommentRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
+
+// nested route: GET|POST /posts/:postId/comments
+router.use('/posts/:postId/comments', CommentRoutes);
 
 export default router;
