@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
 import bcrypt from 'bcrypt';
 import { Schema, model } from 'mongoose';
 import config from '../../config';
@@ -7,36 +6,39 @@ import { TUser, UserModel } from './user.interface';
 
 const userSchema = new Schema<TUser, UserModel>(
   {
-    id: {
+    firstName: {
       type: String,
       required: true,
-      unique: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
       required: true,
       select: 0,
     },
-    needsPasswordChange: {
-      type: Boolean,
-      default: true,
+    avatar: {
+      type: String,
+      default: '',
     },
     passwordChangedAt: {
       type: Date,
     },
-    role: {
-      type: String,
-      enum: ['superAdmin', 'student', 'faculty', 'admin'],
-    },
     status: {
       type: String,
       enum: UserStatus,
-      default: 'in-progress',
+      default: 'active',
     },
     isDeleted: {
       type: Boolean,
@@ -48,30 +50,29 @@ const userSchema = new Schema<TUser, UserModel>(
   },
 );
 
+// hash password before saving
 userSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
-  // hashing password and save into DB
-  user.password = await bcrypt.hash(
-    user.password,
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(
+    this.password,
     Number(config.bcrypt_salt_rounds),
   );
   next();
 });
 
-// set '' after saving password
+// clear password from response after save
 userSchema.post('save', function (doc, next) {
   doc.password = '';
   next();
 });
 
-userSchema.statics.isUserExistsByCustomId = async function (id: string) {
-  return await User.findOne({ id }).select('+password');
+userSchema.statics.isUserExistsByEmail = async function (email: string) {
+  return await User.findOne({ email, isDeleted: false }).select('+password');
 };
 
 userSchema.statics.isPasswordMatched = async function (
-  plainTextPassword,
-  hashedPassword,
+  plainTextPassword: string,
+  hashedPassword: string,
 ) {
   return await bcrypt.compare(plainTextPassword, hashedPassword);
 };
