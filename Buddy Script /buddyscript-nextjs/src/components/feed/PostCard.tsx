@@ -148,25 +148,26 @@ export default function PostCard({ post }: Props) {
         <div className="_feed_inner_timeline_total_reacts_image">
           {post.likesCount > 0 && (
             <>
-              {post.likes.slice(0, 5).map((liker, idx) => (
-                liker.avatar ? (
+              {post.likes.slice(0, 3).map((liker, idx) => {
+                const cls = idx === 0 ? '_react_img1' : idx === 1 ? '_react_img2' : '_react_img3 _rect_img_mbl_none';
+                return liker.avatar ? (
                   <img
                     key={liker._id}
                     src={liker.avatar}
                     alt={liker.firstName}
-                    className={idx === 0 ? '_react_img1' : `_react_img${idx >= 2 ? ' _rect_img_mbl_none' : ''}`}
+                    className={cls}
                     style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
                   />
                 ) : (
                   <div
                     key={liker._id}
-                    className={idx === 0 ? '_react_img1' : `_react_img${idx >= 2 ? ' _rect_img_mbl_none' : ''}`}
+                    className={cls}
                     style={{ width: 24, height: 24, borderRadius: '50%', background: '#377DFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700 }}
                   >
                     {liker.firstName.charAt(0).toUpperCase()}
                   </div>
-                )
-              ))}
+                );
+              })}
               <p className="_feed_inner_timeline_total_reacts_para">{post.likesCount}</p>
             </>
           )}

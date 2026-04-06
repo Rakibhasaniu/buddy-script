@@ -9,4 +9,5 @@ export interface TPost {
   visibility: TVisibility;
   likes: Types.ObjectId[];
   likesCount: number;
+  commentsCount: number;
 }

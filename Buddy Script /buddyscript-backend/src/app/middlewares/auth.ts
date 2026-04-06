@@ -19,7 +19,7 @@ const auth = catchAsync(async (req: Request, _res: Response, next: NextFunction)
   const user = await User.findById(decoded.userId);
 
   if (!user || user.isDeleted) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    throw new AppError(httpStatus.UNAUTHORIZED, 'User not found');
   }
 
   if (user.status === 'blocked') {

@@ -138,6 +138,18 @@ export default function CreatePost() {
             </div>
           </div>
 
+          <div className="d-flex align-items-center gap-2 me-2">
+            <select
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
+              className="form-select form-select-sm"
+              style={{ width: 'auto', fontSize: 13 }}
+            >
+              <option value="public">🌍 Public</option>
+              <option value="private">🔒 Private</option>
+            </select>
+          </div>
+
           <div className="_feed_inner_text_area_btn">
             <button
               type="submit"

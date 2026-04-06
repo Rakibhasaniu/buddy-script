@@ -33,6 +33,10 @@ const postSchema = new Schema<TPost>(
       type: Number,
       default: 0,
     },
+    commentsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

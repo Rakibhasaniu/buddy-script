@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { Types } from 'mongoose';
 import AppError from '../../errors/AppError';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+import { Comment } from '../Comment/comment.model';
 import { Post } from './post.model';
 
 const POSTS_PER_PAGE = 10;
@@ -24,6 +25,19 @@ const getFeed = async (userId: string, cursor?: string) => {
     .populate('author', 'firstName lastName avatar')
     .populate('likes', 'firstName lastName avatar')
     .lean();
+
+  // Compute accurate commentsCount from Comment collection (handles old posts too)
+  if (posts.length > 0) {
+    const postIds = posts.map((p) => p._id);
+    const counts = await Comment.aggregate([
+      { $match: { post: { $in: postIds } } },
+      { $group: { _id: '$post', count: { $sum: 1 } } },
+    ]);
+    const countMap = new Map(counts.map((c) => [c._id.toString(), c.count]));
+    posts.forEach((p) => {
+      p.commentsCount = countMap.get(p._id.toString()) ?? 0;
+    });
+  }
 
   const nextCursor =
     posts.length === POSTS_PER_PAGE

@@ -29,7 +29,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/assets/css/responsive.css" />
         <link rel="stylesheet" href="/assets/fonts/flaticon/flaticon.css" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <ReduxProvider>{children}</ReduxProvider>
         {/* Bootstrap JS */}
         <script src="/assets/js/bootstrap.bundle.min.js" async />

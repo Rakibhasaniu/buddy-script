@@ -21,13 +21,10 @@ async function main() {
 main();
 
 process.on('unhandledRejection', (err) => {
-  console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
-  if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
-  }
-  process.exit(1);
+  console.error('Unhandled rejection:', err);
+  // Only shut down for critical errors (DB connection loss, etc.)
+  // Request-level errors (e.g. Cloudinary upload failure) are handled
+  // by catchAsync → globalErrorHandler and should NOT kill the server.
 });
 
 process.on('uncaughtException', () => {

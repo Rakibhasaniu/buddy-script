@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { axiosPrivate } from '@/lib/axios';
 import { IPost, IPostState } from '@/types';
+import { createComment, deleteComment } from './commentSlice';
 
 const initialState: IPostState = {
   posts: [],
@@ -132,6 +133,16 @@ const postSlice = createSlice({
       if (post) {
         post.likesCount = action.payload.likesCount;
       }
+    });
+
+    // keep commentsCount in sync
+    builder.addCase(createComment.fulfilled, (state, action) => {
+      const post = state.posts.find((p) => p._id === action.payload.postId);
+      if (post) post.commentsCount = (post.commentsCount ?? 0) + 1;
+    });
+    builder.addCase(deleteComment.fulfilled, (state, action) => {
+      const post = state.posts.find((p) => p._id === action.payload.postId);
+      if (post) post.commentsCount = Math.max(0, (post.commentsCount ?? 1) - 1);
     });
   },
 });

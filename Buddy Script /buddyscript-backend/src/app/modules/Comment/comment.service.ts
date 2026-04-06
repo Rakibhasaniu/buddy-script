@@ -67,6 +67,8 @@ const createComment = async (
     text,
   });
 
+  await Post.findByIdAndUpdate(postId, { $inc: { commentsCount: 1 } });
+
   return comment.populate('author', 'firstName lastName avatar');
 };
 
@@ -84,6 +86,7 @@ const deleteComment = async (commentId: string, userId: string) => {
     );
   }
 
+  await Post.findByIdAndUpdate(comment.post, { $inc: { commentsCount: -1 } });
   await comment.deleteOne();
   return null;
 };

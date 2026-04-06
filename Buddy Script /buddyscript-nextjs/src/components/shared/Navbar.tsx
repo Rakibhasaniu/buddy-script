@@ -4,16 +4,31 @@ import { logoutUser } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { user } = useAppSelector((s) => s.auth);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
+    setProfileOpen(false);
     await dispatch(logoutUser());
     router.push('/login');
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : '';
 
@@ -123,7 +138,7 @@ export default function Navbar() {
           </ul>
 
           {/* Profile dropdown */}
-          <div className="_header_nav_profile">
+          <div className="_header_nav_profile ms-3" ref={dropdownRef}>
             <div className="_header_nav_profile_image">
               {user?.avatar ? (
                 <img src={user.avatar} alt={fullName} className="_nav_profile_img" />
@@ -138,14 +153,14 @@ export default function Navbar() {
             </div>
             <div className="_header_nav_dropdown">
               <p className="_header_nav_para">{fullName}</p>
-              <button id="_profile_drop_show_btn" className="_header_nav_dropdown_btn _dropdown_toggle" type="button">
+              <button id="_profile_drop_show_btn" className="_header_nav_dropdown_btn _dropdown_toggle" type="button" onClick={() => setProfileOpen((v) => !v)}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" fill="none" viewBox="0 0 10 6">
                   <path fill="#112032" d="M5 5l.354.354L5 5.707l-.354-.353L5 5zm4.354-3.646l-4 4-.708-.708 4-4 .708.708zm-4.708 4l-4-4 .708-.708 4 4-.708.708z" />
                 </svg>
               </button>
             </div>
 
-            <div id="_prfoile_drop" className="_nav_profile_dropdown _profile_dropdown">
+            <div id="_prfoile_drop" className={`_nav_profile_dropdown _profile_dropdown${profileOpen ? ' show' : ''}`}>
               <div className="_nav_profile_dropdown_info">
                 <div className="_nav_profile_dropdown_image">
                   {user?.avatar ? (
