@@ -1,5 +1,9 @@
 # BuddyScript frontend (Next.js)
 
+Overview of the project and design choices: see the **README in the repository root** (one level above this folder).
+
+---
+
 ## 1. Create `.env.local`
 
 Add a file named **`.env.local`** in this folder (next to `package.json` and `src`):

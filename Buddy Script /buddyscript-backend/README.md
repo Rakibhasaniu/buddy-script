@@ -1,5 +1,9 @@
 # BuddyScript backend
 
+Overview of the project and design choices: see the **README in the repository root** (one level above this folder).
+
+---
+
 ## 1. Add the `uploads` folder
 
 Create a folder named **`uploads`** here (inside the backend project, next to `package.json` and `src`):
