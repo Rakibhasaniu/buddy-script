@@ -94,8 +94,10 @@ const postSlice = createSlice({
       })
       .addCase(fetchFeed.fulfilled, (state, action) => {
         state.isLoading = false;
-        // append for infinite scroll
-        state.posts = [...state.posts, ...action.payload.posts];
+        // deduplicate by _id to guard against StrictMode double-invoke
+        const existingIds = new Set(state.posts.map((p) => p._id));
+        const newPosts = action.payload.posts.filter((p) => !existingIds.has(p._id));
+        state.posts = [...state.posts, ...newPosts];
         state.nextCursor = action.payload.nextCursor;
         state.hasMore = action.payload.nextCursor !== null;
       })

@@ -148,11 +148,25 @@ export default function PostCard({ post }: Props) {
         <div className="_feed_inner_timeline_total_reacts_image">
           {post.likesCount > 0 && (
             <>
-              <img src="/assets/images/react_img1.png" alt="" className="_react_img1" />
-              <img src="/assets/images/react_img2.png" alt="" className="_react_img" />
-              <img src="/assets/images/react_img3.png" alt="" className="_react_img _rect_img_mbl_none" />
-              <img src="/assets/images/react_img4.png" alt="" className="_react_img _rect_img_mbl_none" />
-              <img src="/assets/images/react_img5.png" alt="" className="_react_img _rect_img_mbl_none" />
+              {post.likes.slice(0, 5).map((liker, idx) => (
+                liker.avatar ? (
+                  <img
+                    key={liker._id}
+                    src={liker.avatar}
+                    alt={liker.firstName}
+                    className={idx === 0 ? '_react_img1' : `_react_img${idx >= 2 ? ' _rect_img_mbl_none' : ''}`}
+                    style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div
+                    key={liker._id}
+                    className={idx === 0 ? '_react_img1' : `_react_img${idx >= 2 ? ' _rect_img_mbl_none' : ''}`}
+                    style={{ width: 24, height: 24, borderRadius: '50%', background: '#377DFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700 }}
+                  >
+                    {liker.firstName.charAt(0).toUpperCase()}
+                  </div>
+                )
+              ))}
               <p className="_feed_inner_timeline_total_reacts_para">{post.likesCount}</p>
             </>
           )}

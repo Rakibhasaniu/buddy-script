@@ -1,6 +1,6 @@
 'use client';
 
-import { logout } from '@/store/slices/authSlice';
+import { logoutUser } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -10,8 +10,8 @@ export default function Navbar() {
   const router = useRouter();
   const { user } = useAppSelector((s) => s.auth);
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
     router.push('/login');
   };
 

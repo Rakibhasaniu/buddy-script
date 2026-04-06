@@ -14,10 +14,9 @@ export default function CommentSection({ postId }: { postId: string }) {
   const [openReplies, setOpenReplies] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (!commentData) {
-      dispatch(fetchComments({ postId }));
-    }
-  }, [dispatch, postId, commentData]);
+    dispatch(fetchComments({ postId }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

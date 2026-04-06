@@ -93,7 +93,13 @@ const replySlice = createSlice({
       })
       .addCase(fetchReplies.fulfilled, (state, action) => {
         const { commentId, replies } = action.payload;
-        state.byCommentId[commentId] = { replies, isLoading: false };
+        const existing = state.byCommentId[commentId]?.replies || [];
+        const existingIds = new Set(existing.map((r) => r._id));
+        const newReplies = replies.filter((r) => !existingIds.has(r._id));
+        state.byCommentId[commentId] = {
+          replies: [...existing, ...newReplies],
+          isLoading: false,
+        };
       })
       .addCase(fetchReplies.rejected, (state, action) => {
         const commentId = action.meta.arg;

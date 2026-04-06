@@ -103,8 +103,10 @@ const commentSlice = createSlice({
       .addCase(fetchComments.fulfilled, (state, action) => {
         const { postId, comments, nextCursor } = action.payload;
         const existing = state.byPostId[postId]?.comments || [];
+        const existingIds = new Set(existing.map((c) => c._id));
+        const newComments = comments.filter((c) => !existingIds.has(c._id));
         state.byPostId[postId] = {
-          comments: [...existing, ...comments],
+          comments: [...existing, ...newComments],
           nextCursor,
           isLoading: false,
         };

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { axiosPublic } from '@/lib/axios';
+import { axiosPublic, axiosPrivate } from '@/lib/axios';
 import { IAuthState, IUser } from '@/types';
 
 const initialState: IAuthState = {
@@ -40,12 +40,23 @@ export const loginUser = createAsyncThunk(
   },
 );
 
+export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
+  try {
+    await axiosPrivate.post('/auth/logout');
+  } catch {
+    // even if API call fails, we still clear client state
+  }
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('user');
+});
+
 // ─── Slice ───────────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    // kept for axios interceptor fallback (no API call)
     logout(state) {
       state.user = null;
       state.accessToken = null;
@@ -100,6 +111,13 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
+
+    // logout
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.user = null;
+      state.accessToken = null;
+      state.error = null;
+    });
   },
 });
 
