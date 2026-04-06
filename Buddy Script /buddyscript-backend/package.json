@@ -6,12 +6,12 @@
   "scripts": {
     "start:prod": "node ./dist/server.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "migrate:likes": "tsx src/scripts/migrateLikesToCollection.ts",
     "build": "tsc",
     "lint": "eslint src --ignore-path .eslintignore --ext .ts",
     "lint:fix": "npx eslint src --fix",
     "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
-    "prettier:fix": "npx prettier --write src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prettier:fix": "npx prettier --write src"
   },
   "keywords": [],
   "author": "",
@@ -51,6 +51,7 @@
     "husky": "^8.0.0",
     "prettier": "^3.1.0",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.2.2"
   }
 }

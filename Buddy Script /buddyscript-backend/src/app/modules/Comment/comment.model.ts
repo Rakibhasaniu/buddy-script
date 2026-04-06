@@ -19,12 +19,6 @@ const commentSchema = new Schema<TComment>(
       trim: true,
       maxlength: 2000,
     },
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
     likesCount: {
       type: Number,
       default: 0,

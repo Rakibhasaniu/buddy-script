@@ -19,12 +19,6 @@ const replySchema = new Schema<TReply>(
       trim: true,
       maxlength: 1000,
     },
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
     likesCount: {
       type: Number,
       default: 0,

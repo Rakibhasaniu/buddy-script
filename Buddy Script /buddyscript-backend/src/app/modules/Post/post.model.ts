@@ -23,12 +23,6 @@ const postSchema = new Schema<TPost>(
       enum: ['public', 'private'],
       default: 'public',
     },
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
     likesCount: {
       type: Number,
       default: 0,

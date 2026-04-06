@@ -39,7 +39,6 @@ export default function CommentSection({ postId }: { postId: string }) {
 
   return (
     <div className="_feed_inner_timeline_cooment_area">
-      {/* Comment input */}
       <div className="_feed_inner_comment_box">
         <form className="_feed_inner_comment_box_form" onSubmit={handleSubmit}>
           <div className="_feed_inner_comment_box_content">
@@ -71,19 +70,16 @@ export default function CommentSection({ postId }: { postId: string }) {
         </form>
       </div>
 
-      {/* Comment list */}
       <div className="_timline_comment_main" style={{ padding: '0 16px' }}>
         {comments.map((comment) => {
           const isLiked = comment.likes?.some((u) => u._id === user?._id);
           return (
             <div key={comment._id} className="_comment_main" style={{ marginBottom: 16 }}>
-              {/* Avatar */}
               <div className="_comment_image">
                 <Avatar src={comment.author.avatar} name={comment.author.firstName} size={36} className="_comment_img1" />
               </div>
 
               <div className="_comment_area">
-                {/* Bubble */}
                 <div
                   className="_comment_details"
                   style={{ marginBottom: 4, position: 'relative' }}
@@ -97,7 +93,6 @@ export default function CommentSection({ postId }: { postId: string }) {
                     <p className="_comment_status_text">{comment.text}</p>
                   </div>
 
-                  {/* Like count badge — bottom-right of bubble */}
                   {comment.likesCount > 0 && (
                     <div
                       style={{
@@ -124,7 +119,6 @@ export default function CommentSection({ postId }: { postId: string }) {
                   )}
                 </div>
 
-                {/* Action row */}
                 <div
                   style={{
                     display: 'flex',
@@ -169,10 +163,7 @@ export default function CommentSection({ postId }: { postId: string }) {
                   </span>
                 </div>
 
-                {/* Replies */}
-                {openReplies[comment._id] && (
-                  <ReplySection commentId={comment._id} />
-                )}
+                {openReplies[comment._id] && <ReplySection commentId={comment._id} />}
               </div>
             </div>
           );

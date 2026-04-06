@@ -149,20 +149,37 @@ export default function PostCard({ post }: Props) {
           {post.likesCount > 0 && (
             <>
               {post.likes.slice(0, 3).map((liker, idx) => {
-                const cls = idx === 0 ? '_react_img1' : idx === 1 ? '_react_img2' : '_react_img3 _rect_img_mbl_none';
+                const cls =
+                  idx === 0
+                    ? '_react_img1'
+                    : idx === 2
+                      ? '_react_img _rect_img_mbl_none'
+                      : '_react_img';
                 return liker.avatar ? (
                   <img
                     key={liker._id}
                     src={liker.avatar}
                     alt={liker.firstName}
                     className={cls}
-                    style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
+                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
                   />
                 ) : (
                   <div
                     key={liker._id}
                     className={cls}
-                    style={{ width: 24, height: 24, borderRadius: '50%', background: '#377DFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700 }}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: '#377DFF',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      flexShrink: 0,
+                    }}
                   >
                     {liker.firstName.charAt(0).toUpperCase()}
                   </div>
@@ -183,16 +200,26 @@ export default function PostCard({ post }: Props) {
       {/* Reaction buttons */}
       <div className="_feed_inner_timeline_reaction">
         <button
-          className={`_feed_inner_timeline_reaction_emoji _feed_reaction${isLiked ? ' _feed_reaction_active' : ''}`}
+          type="button"
+          className={`_feed_inner_timeline_reaction_emoji _feed_reaction _feed_reaction_like${isLiked ? ' _feed_reaction_active' : ''}`}
           onClick={() => dispatch(togglePostLike(post._id))}
         >
           <span className="_feed_inner_timeline_reaction_link">
-            <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 19 19">
-                <path fill={isLiked ? '#377DFF' : '#FFCC4D'} d="M9.5 19a9.5 9.5 0 100-19 9.5 9.5 0 000 19z" />
-                <path fill="#664500" d="M9.5 11.083c-1.912 0-3.181-.222-4.75-.527-.358-.07-1.056 0-1.056 1.055 0 2.111 2.425 4.75 5.806 4.75 3.38 0 5.805-2.639 5.805-4.75 0-1.055-.697-1.125-1.055-1.055-1.57.305-2.838.527-4.75.527z" />
-                <path fill="#fff" d="M4.75 11.611s1.583.528 4.75.528 4.75-.528 4.75-.528-1.056 2.111-4.75 2.111-4.75-2.11-4.75-2.11z" />
-                <path fill="#664500" d="M6.333 8.972c.729 0 1.32-.827 1.32-1.847s-.591-1.847-1.32-1.847c-.729 0-1.32.827-1.32 1.847s.591 1.847 1.32 1.847zM12.667 8.972c.729 0 1.32-.827 1.32-1.847s-.591-1.847-1.32-1.847c-.729 0-1.32.827-1.32 1.847s.591 1.847 1.32 1.847z" />
+            <span className="_feed_reaction_like_inner">
+              <svg
+                className="_feed_reaction_like_icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill={isLiked ? '#377DFF' : 'none'}
+                stroke={isLiked ? 'none' : 'currentColor'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
               </svg>
               {isLiked ? 'Liked' : 'Like'}
             </span>

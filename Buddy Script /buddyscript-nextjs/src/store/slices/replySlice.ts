@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { axiosPrivate } from '@/lib/axios';
-import { IReply, IReplyState } from '@/types';
+import { IReply, IReplyState, IUser } from '@/types';
 
 const initialState: IReplyState = {
   byCommentId: {},
 };
 
-// ─── Thunks ───────────────────────────────────────────────────────────────────
+
 
 export const fetchReplies = createAsyncThunk(
   'replies/fetch',
@@ -66,6 +66,7 @@ export const toggleReplyLike = createAsyncThunk(
         commentId: string;
         liked: boolean;
         likesCount: number;
+        likes: IUser[];
       };
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -74,7 +75,7 @@ export const toggleReplyLike = createAsyncThunk(
   },
 );
 
-// ─── Slice ───────────────────────────────────────────────────────────────────
+
 
 const replySlice = createSlice({
   name: 'replies',
@@ -129,12 +130,13 @@ const replySlice = createSlice({
 
     // toggle like
     builder.addCase(toggleReplyLike.fulfilled, (state, action) => {
-      const { replyId, commentId, likesCount } = action.payload;
+      const { replyId, commentId, likesCount, likes } = action.payload;
       const reply = state.byCommentId[commentId]?.replies.find(
         (r) => r._id === replyId,
       );
       if (reply) {
         reply.likesCount = likesCount;
+        if (likes) reply.likes = likes;
       }
     });
   },

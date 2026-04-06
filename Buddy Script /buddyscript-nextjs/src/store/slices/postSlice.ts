@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { axiosPrivate } from '@/lib/axios';
-import { IPost, IPostState } from '@/types';
+import { IPost, IPostState, IUser } from '@/types';
 import { createComment, deleteComment } from './commentSlice';
 
 const initialState: IPostState = {
@@ -12,7 +12,6 @@ const initialState: IPostState = {
   error: null,
 };
 
-// ─── Thunks ───────────────────────────────────────────────────────────────────
 
 export const fetchFeed = createAsyncThunk(
   'posts/fetchFeed',
@@ -65,6 +64,7 @@ export const togglePostLike = createAsyncThunk(
         postId: string;
         liked: boolean;
         likesCount: number;
+        likes: IUser[];
       };
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -73,7 +73,7 @@ export const togglePostLike = createAsyncThunk(
   },
 );
 
-// ─── Slice ───────────────────────────────────────────────────────────────────
+
 
 const postSlice = createSlice({
   name: 'posts',
@@ -132,6 +132,7 @@ const postSlice = createSlice({
       const post = state.posts.find((p) => p._id === action.payload.postId);
       if (post) {
         post.likesCount = action.payload.likesCount;
+        if (action.payload.likes) post.likes = action.payload.likes;
       }
     });
 

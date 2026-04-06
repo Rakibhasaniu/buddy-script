@@ -38,14 +38,12 @@ export default function ReplySection({ commentId }: { commentId: string }) {
 
   return (
     <div style={{ paddingLeft: 44, marginTop: 8 }}>
-      {/* Reply list */}
       {replies.map((reply) => {
         const isLiked = reply.likes?.some((u) => u._id === user?._id);
         return (
           <div key={reply._id} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             <Avatar src={reply.author.avatar} name={reply.author.firstName} size={28} />
             <div style={{ flex: 1 }}>
-              {/* Bubble */}
               <div
                 className="_comment_details"
                 style={{ marginBottom: 4, position: 'relative', display: 'inline-block', minWidth: 120 }}
@@ -81,7 +79,6 @@ export default function ReplySection({ commentId }: { commentId: string }) {
                 )}
               </div>
 
-              {/* Action row */}
               <div
                 style={{
                   display: 'flex',
@@ -115,7 +112,6 @@ export default function ReplySection({ commentId }: { commentId: string }) {
         );
       })}
 
-      {/* Reply input */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 8 }}>
         <Avatar src={user?.avatar} name={user?.firstName || 'U'} size={28} />
         <form

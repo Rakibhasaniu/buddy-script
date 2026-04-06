@@ -3,6 +3,13 @@ import { Types } from 'mongoose';
 import AppError from '../../errors/AppError';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import { Comment } from '../Comment/comment.model';
+import { Reply } from '../Reply/reply.model';
+import {
+  attachRecentLikers,
+  deleteLikesForTarget,
+  getAllLikersSorted,
+  toggleLike as toggleLikeRecord,
+} from '../Like/like.service';
 import { Post } from './post.model';
 
 const POSTS_PER_PAGE = 10;
@@ -23,8 +30,16 @@ const getFeed = async (userId: string, cursor?: string) => {
     .sort({ _id: -1 })
     .limit(POSTS_PER_PAGE)
     .populate('author', 'firstName lastName avatar')
-    .populate('likes', 'firstName lastName avatar')
     .lean();
+
+  const likeMap = await attachRecentLikers(
+    'post',
+    posts.map((p) => ({ _id: p._id as Types.ObjectId })),
+  );
+
+  posts.forEach((p) => {
+    (p as unknown as { likes: unknown[] }).likes = likeMap.get(p._id.toString()) ?? [];
+  });
 
   // Compute accurate commentsCount from Comment collection (handles old posts too)
   if (posts.length > 0) {
@@ -70,10 +85,13 @@ const createPost = async (
     image: imageUrl,
   });
 
-  return post.populate('author', 'firstName lastName avatar');
+  const populated = await post.populate('author', 'firstName lastName avatar');
+  const plain = populated.toObject();
+  (plain as unknown as { likes: unknown[] }).likes = [];
+  return plain;
 };
 
-// DELETE /posts/:id — only author can delete
+// DELETE /posts/:id — only author can delete; cascade comments, replies, likes
 const deletePost = async (postId: string, userId: string) => {
   const post = await Post.findById(postId);
 
@@ -83,6 +101,25 @@ const deletePost = async (postId: string, userId: string) => {
 
   if (post.author.toString() !== userId) {
     throw new AppError(httpStatus.FORBIDDEN, 'You can only delete your own posts');
+  }
+
+  const postOid = post._id as Types.ObjectId;
+
+  await deleteLikesForTarget('post', postOid);
+
+  const comments = await Comment.find({ post: postOid }).select('_id').lean();
+  const commentIds = comments.map((c) => c._id as Types.ObjectId);
+
+  if (commentIds.length > 0) {
+    const replies = await Reply.find({ comment: { $in: commentIds } }).select('_id').lean();
+    for (const r of replies) {
+      await deleteLikesForTarget('reply', r._id as Types.ObjectId);
+    }
+    await Reply.deleteMany({ comment: { $in: commentIds } });
+    for (const cid of commentIds) {
+      await deleteLikesForTarget('comment', cid);
+    }
+    await Comment.deleteMany({ post: postOid });
   }
 
   await post.deleteOne();
@@ -103,26 +140,11 @@ const toggleLike = async (postId: string, userId: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'Post not accessible');
   }
 
-  const userObjectId = new Types.ObjectId(userId);
-  const alreadyLiked = post.likes.some((id) => id.equals(userObjectId));
-
-  if (alreadyLiked) {
-    post.likes = post.likes.filter((id) => !id.equals(userObjectId));
-    post.likesCount = Math.max(0, post.likesCount - 1);
-  } else {
-    post.likes.push(userObjectId);
-    post.likesCount += 1;
-  }
-
-  await post.save();
-
-  return { liked: !alreadyLiked, likesCount: post.likesCount };
+  return toggleLikeRecord('post', postId, userId);
 };
 
 const getLikes = async (postId: string, userId: string) => {
-  const post = await Post.findById(postId)
-    .populate('likes', 'firstName lastName avatar')
-    .lean();
+  const post = await Post.findById(postId).lean();
 
   if (!post) {
     throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
@@ -135,7 +157,7 @@ const getLikes = async (postId: string, userId: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'Post not accessible');
   }
 
-  return post.likes;
+  return getAllLikersSorted('post', post._id as Types.ObjectId);
 };
 
 export const PostServices = {

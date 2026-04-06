@@ -4,7 +4,10 @@ import sendResponse from '../../utils/sendResponse';
 import { ReplyServices } from './reply.service';
 
 const getReplies = catchAsync(async (req, res) => {
-  const result = await ReplyServices.getReplies(req.params.commentId);
+  const result = await ReplyServices.getReplies(
+    req.params.commentId,
+    req.user.userId,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -55,7 +58,7 @@ const toggleLike = catchAsync(async (req, res) => {
 });
 
 const getLikes = catchAsync(async (req, res) => {
-  const result = await ReplyServices.getLikes(req.params.id);
+  const result = await ReplyServices.getLikes(req.params.id, req.user.userId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

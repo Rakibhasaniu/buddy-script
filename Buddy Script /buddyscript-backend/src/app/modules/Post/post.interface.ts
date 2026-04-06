@@ -7,7 +7,6 @@ export interface TPost {
   text: string;
   image?: string;
   visibility: TVisibility;
-  likes: Types.ObjectId[];
   likesCount: number;
   commentsCount: number;
 }
