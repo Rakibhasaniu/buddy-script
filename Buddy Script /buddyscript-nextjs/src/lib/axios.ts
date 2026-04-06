@@ -9,10 +9,9 @@ export const axiosPublic = axios.create({
 
 export const axiosPrivate = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true, // sends httpOnly refresh token cookie
+  withCredentials: true, 
 });
 
-// attach access token to every private request
 axiosPrivate.interceptors.request.use((config) => {
   const token =
     typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
@@ -24,7 +23,6 @@ axiosPrivate.interceptors.request.use((config) => {
   return config;
 });
 
-// on 401 — try refresh, then retry original request
 axiosPrivate.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -43,7 +41,6 @@ axiosPrivate.interceptors.response.use(
           return axiosPrivate(originalRequest);
         }
       } catch {
-        // refresh failed — clear storage and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         window.location.href = '/login';
