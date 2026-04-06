@@ -1,0 +1,211 @@
+'use client';
+
+import { clearError, registerUser } from '@/store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+export default function RegisterForm() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { isLoading, error } = useAppSelector((s) => s.auth);
+
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [localError, setLocalError] = useState('');
+
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalError('');
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      setLocalError('Passwords do not match');
+      return;
+    }
+    const { confirmPassword: _, ...payload } = form;
+    const result = await dispatch(registerUser(payload));
+    if (registerUser.fulfilled.match(result)) {
+      router.push('/feed');
+    }
+  };
+
+  const displayError = localError || error;
+
+  return (
+    <section className="_social_registration_wrapper _layout_main_wrapper">
+      <div className="_shape_one">
+        <img src="/assets/images/shape1.svg" alt="" className="_shape_img" />
+        <img src="/assets/images/dark_shape.svg" alt="" className="_dark_shape" />
+      </div>
+      <div className="_shape_two">
+        <img src="/assets/images/shape2.svg" alt="" className="_shape_img" />
+        <img src="/assets/images/dark_shape1.svg" alt="" className="_dark_shape _dark_shape_opacity" />
+      </div>
+      <div className="_shape_three">
+        <img src="/assets/images/shape3.svg" alt="" className="_shape_img" />
+        <img src="/assets/images/dark_shape2.svg" alt="" className="_dark_shape _dark_shape_opacity" />
+      </div>
+
+      <div className="_social_registration_wrap">
+        <div className="container">
+          <div className="row align-items-center">
+            {/* Left image */}
+            <div className="col-xl-8 col-lg-8 col-md-12 col-sm-12">
+              <div className="_social_registration_right">
+                <div className="_social_registration_right_image">
+                  <img src="/assets/images/registration.png" alt="" />
+                </div>
+                <div className="_social_registration_right_image_dark">
+                  <img src="/assets/images/registration1.png" alt="" />
+                </div>
+              </div>
+            </div>
+
+            {/* Right form */}
+            <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+              <div className="_social_registration_content">
+                <div className="_social_registration_right_logo _mar_b28">
+                  <img src="/assets/images/logo.svg" alt="BuddyScript" className="_right_logo" />
+                </div>
+                <p className="_social_registration_content_para _mar_b8">Get Started Now</p>
+                <h4 className="_social_registration_content_title _titl4 _mar_b50">
+                  Registration
+                </h4>
+
+                {displayError && (
+                  <div className="alert alert-danger py-2 mb-3" role="alert">
+                    {displayError}
+                  </div>
+                )}
+
+                <form className="_social_registration_form" onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                      <div className="_social_registration_form_input _mar_b14">
+                        <label className="_social_registration_label _mar_b8">First Name</label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          value={form.firstName}
+                          onChange={handleChange}
+                          className="form-control _social_registration_input"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                      <div className="_social_registration_form_input _mar_b14">
+                        <label className="_social_registration_label _mar_b8">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          value={form.lastName}
+                          onChange={handleChange}
+                          className="form-control _social_registration_input"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="_social_registration_form_input _mar_b14">
+                        <label className="_social_registration_label _mar_b8">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={form.email}
+                          onChange={handleChange}
+                          className="form-control _social_registration_input"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="_social_registration_form_input _mar_b14">
+                        <label className="_social_registration_label _mar_b8">Password</label>
+                        <input
+                          type="password"
+                          name="password"
+                          value={form.password}
+                          onChange={handleChange}
+                          className="form-control _social_registration_input"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="_social_registration_form_input _mar_b14">
+                        <label className="_social_registration_label _mar_b8">Repeat Password</label>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          value={form.confirmPassword}
+                          onChange={handleChange}
+                          className="form-control _social_registration_input"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-12">
+                      <div className="form-check _social_registration_form_check">
+                        <input
+                          className="form-check-input _social_registration_form_check_input"
+                          type="checkbox"
+                          id="terms"
+                          required
+                        />
+                        <label className="form-check-label _social_registration_form_check_label" htmlFor="terms">
+                          I agree to terms &amp; conditions
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-12">
+                      <div className="_social_registration_form_btn _mar_t40 _mar_b60">
+                        <button
+                          type="submit"
+                          className="_social_registration_form_btn_link _btn1"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? 'Creating account...' : 'Register now'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+                <div className="row">
+                  <div className="col-12">
+                    <div className="_social_registration_bottom_txt">
+                      <p className="_social_registration_bottom_txt_para">
+                        Already have an account?{' '}
+                        <Link href="/login">Login</Link>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
